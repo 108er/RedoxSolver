@@ -1,6 +1,6 @@
 Element,Symbol,Electronegativity,OxidationNumbers
 Hydrogen,H,2.20,"-1,0,+1"
-Helium,He,,0
+Helium,He,,"0"
 Lithium,Li,0.98,"0,+1"
 Beryllium,Be,1.57,"0,+2"
 Boron,B,2.04,"0,+1,+2,+3"
