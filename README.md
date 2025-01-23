@@ -15,9 +15,9 @@ The project is designed to handle complex chemical reactions, providing an easy 
 ```lua
 ├── redox_solver.py    # Main application script
 ├── reaction.py        # Handles redox reaction logic
-├── element.py         # Manages chemical elements and properties
-├── utils.py           # Utility functions for parsing and validation
-├── data.csv           # Dataset containing element data (e.g., atomic weights, oxidation states)
+├── element.py         # Manages chemical elements / properties
+├── utils.py           # Utility functions for parsing / validation
+├── data.csv           # Dataset containing element infos (element names / abbriviation, electronegativity, oxidation states)
 └── README.md          # Project documentation
 ```
 
