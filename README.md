@@ -25,11 +25,11 @@ A Python-based application for solving and analyzing redox reactions efficiently
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/redox-solver.git
+   git clone https://github.com/108er/RedoxSolver.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd redox-solver
+   cd RedoxSolver
    ```
 3. Install required dependencies:
    ```bash
