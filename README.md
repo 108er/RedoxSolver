@@ -1,6 +1,7 @@
 # Redox Solver
 
-A Python-based application for solving and analyzing redox reactions efficiently. The project is designed to handle complex chemical reactions, providing an easy way to balance redox reactions, calculate oxidation states, and more.
+A Python-based application for solving and analyzing redox reactions efficiently. 
+The project is designed to handle complex chemical reactions, providing an easy way to balance redox reactions, calculate oxidation states, and more.
 
 ## Features
 
@@ -12,7 +13,6 @@ A Python-based application for solving and analyzing redox reactions efficiently
 ## Project Structure
 
 ```
-.
 ├── redox_solver.py    # Main application script
 ├── reaction.py        # Handles redox reaction logic
 ├── element.py         # Manages chemical elements and properties
