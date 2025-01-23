@@ -66,11 +66,16 @@ Contributions are welcome! If you'd like to improve the project, please follow t
 4. Push to the branch (`git push origin feature/YourFeature`).
 5. Create a pull request.
 
+### Top contributors:
+
+<a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=othneildrew/Best-README-Template" alt="contrib.rocks image" />
+</a>
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-Feel free to report issues or request new features in the [Issues](https://github.com/108er/RedoxSolver/issues) section! <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
+Feel free to report issues or request new features in the [Issues](https://github.com/108er/RedoxSolver/issues) section!
