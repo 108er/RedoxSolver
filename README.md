@@ -69,7 +69,7 @@ Contributions are welcome! If you'd like to improve the project, please follow t
 ### Top contributors:
 
 <a href="https://github.com/108er/RedoxSolver/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=othneildrew/Best-README-Template" alt="contrib.rocks image" />
+  <img src="https://contrib.rocks/image?repo=108er/RedoxSolver" alt="contrib.rocks image" />
 </a>
 
 ## License
