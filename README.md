@@ -72,4 +72,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-Feel free to report issues or request new features in the [Issues](https://github.com/108er/RedoxSolver/issues) section!
+Feel free to report issues or request new features in the [Issues](https://github.com/108er/RedoxSolver/issues) section! <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
