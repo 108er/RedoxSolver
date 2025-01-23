@@ -12,7 +12,7 @@ The project is designed to handle complex chemical reactions, providing an easy 
 
 ## Project Structure
 
-```
+```lua
 ├── redox_solver.py    # Main application script
 ├── reaction.py        # Handles redox reaction logic
 ├── element.py         # Manages chemical elements and properties
