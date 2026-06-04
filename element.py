@@ -1,4 +1,5 @@
 import csv
+import os
 
 class Element:
     def __init__(self, name, symbol, electronegativity, oxidation_numbers):
@@ -24,6 +25,11 @@ def load_elements_from_csv(file_path):
             elements.append(element)
     return elements
 
-elements = load_elements_from_csv("data.csv")
-for element in elements:
-    print(element)
+# Resolve absolute path to data.csv relative to this file
+CSV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.csv")
+ELEMENTS_LIST = load_elements_from_csv(CSV_PATH)
+ELEMENTS = {el.symbol: el for el in ELEMENTS_LIST}
+
+if __name__ == "__main__":
+    for element in ELEMENTS_LIST:
+        print(element)
