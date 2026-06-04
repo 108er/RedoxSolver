@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redox Solver & Analyzer</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-glows">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+    
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-badge">⚡ REDOX</div>
+            <h1>Redox Solver & Analyzer</h1>
+            <p class="subtitle">Automatically balance complex chemical equations, calculate oxidation states, and identify active agents instantly.</p>
+        </header>
+
+        <main class="main-card">
+            <section class="presets-section">
+                <span class="section-label">Try an example:</span>
+                <div class="presets-grid">
+                    <button type="button" class="preset-btn" data-eq="MnO4- + Fe2+ -> Mn2+ + Fe3+" data-med="acidic">MnO₄⁻ + Fe²⁺ (Acidic)</button>
+                    <button type="button" class="preset-btn" data-eq="Cr2O72- + I- -> Cr3+ + I2" data-med="acidic">Cr₂O₇²⁻ + I⁻ (Acidic)</button>
+                    <button type="button" class="preset-btn" data-eq="KMnO4 + FeSO4 + H2SO4 -> MnSO4 + Fe2(SO4)3 + K2SO4 + H2O" data-med="neutral">KMnO₄ + FeSO₄ + H₂SO₄</button>
+                    <button type="button" class="preset-btn" data-eq="MnO4- + C2O42- -> Mn2+ + CO2" data-med="basic">MnO₄⁻ + C₂O₄²⁻ (Basic)</button>
+                </div>
+            </section>
+
+            <!-- Main Input Form -->
+            <form id="solver-form" class="solver-form" novalidate>
+                <div class="input-group">
+                    <label for="equation-input" class="field-label">Chemical Equation</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="equation-input" placeholder="e.g., MnO4- + Fe2+ -> Mn2+ + Fe3+" required autocomplete="off">
+                        <button type="button" id="clear-btn" class="clear-btn" aria-label="Clear input">&times;</button>
+                    </div>
+                </div>
+
+                <div class="options-row">
+                    <div class="medium-selector-group">
+                        <span class="field-label">Reaction Medium</span>
+                        <div class="segmented-control">
+                            <input type="radio" name="medium" id="med-auto" value="auto" checked>
+                            <label for="med-auto">Auto-detect</label>
+                            
+                            <input type="radio" name="medium" id="med-acidic" value="acidic">
+                            <label for="med-acidic">Acidic</label>
+                            
+                            <input type="radio" name="medium" id="med-basic" value="basic">
+                            <label for="med-basic">Basic</label>
+                            
+                            <input type="radio" name="medium" id="med-neutral" value="neutral">
+                            <label for="med-neutral">Neutral</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="submit-btn">
+                        <span>Balance & Analyze</span>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Error Banner -->
+            <div id="error-banner" class="error-banner hidden">
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span id="error-message"></span>
+            </div>
+
+            <!-- Results Section (Hidden initially) -->
+            <div id="results-container" class="results-container hidden">
+                <!-- Balanced Equation Output -->
+                <section class="result-card equation-card">
+                    <div class="result-card-header">
+                        <span class="card-tag" id="medium-badge">Acidic</span>
+                        <h2>Balanced Chemical Equation</h2>
+                    </div>
+                    <div id="balanced-output" class="balanced-output"></div>
+                </section>
+
+                <div class="results-grid">
+                    <!-- Redox Analysis (Oxidation & Reduction) -->
+                    <section class="result-card analysis-card">
+                        <h2>Redox Analysis</h2>
+                        
+                        <div class="analysis-block oxidation-block">
+                            <div class="block-title">
+                                <span class="badge badge-oxidized">Oxidation</span>
+                                <h3>Electron Donor (Gets Oxidized)</h3>
+                            </div>
+                            <div id="oxidation-details" class="details-list"></div>
+                        </div>
+
+                        <div class="analysis-block reduction-block">
+                            <div class="block-title">
+                                <span class="badge badge-reduced">Reduction</span>
+                                <h3>Electron Acceptor (Gets Reduced)</h3>
+                            </div>
+                            <div id="reduction-details" class="details-list"></div>
+                        </div>
+
+                        <div class="agents-block">
+                            <div class="agent-item">
+                                <span class="agent-label">Reducing Agent:</span>
+                                <div id="reducing-agent-badge" class="agent-value badge-oxidized">Fe²⁺</div>
+                            </div>
+                            <div class="agent-item">
+                                <span class="agent-label">Oxidizing Agent:</span>
+                                <div id="oxidizing-agent-badge" class="agent-value badge-reduced">MnO₄⁻</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Oxidation States Table -->
+                    <section class="result-card states-card">
+                        <h2>Oxidation States of Elements</h2>
+                        <div class="table-container">
+                            <table class="states-table">
+                                <thead>
+                                    <tr>
+                                        <th>Species</th>
+                                        <th>Element Oxidation States</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="states-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <p>&copy; 2026 Redox Solver. Designed for high performance chemical modeling.</p>
+        </footer>
+    </div>
+
+    <!-- Solver JavaScript Engine -->
+    <script src="redoxSolver.js"></script>
+</body>
+</html>

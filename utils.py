@@ -109,13 +109,16 @@ def parse_species(species_str):
         formula = species_str[:match.start()].strip()
         
         if num_str:
-            # Distinguish formula counts from charge magnitudes:
-            # - Cations (+) always have the digit as the charge (e.g. Fe2+, Mn2+).
-            # - If formula ends with another digit (e.g. SO4 in SO42-), last digit is the charge.
-            # - If formula has multiple uppercase letters (compound, e.g. MnO in MnO4-),
-            #   then the digit is the count, and charge magnitude is 1.
-            # - If formula is a single element (e.g. I in I3-), and digit is 3 (like I3-),
-            #   then the digit is the count, and charge magnitude is 1.
+            # If the matched digit sequence has length > 1 (e.g. "42" in C2O42-),
+            # the last digit is the charge magnitude, and the prefix digits belong to the formula.
+            if len(num_str) > 1:
+                formula_digit = num_str[:-1]
+                charge_digit = num_str[-1]
+                formula = formula + formula_digit
+                charge = int(charge_digit) * (1 if sign_str[0] == '+' else -1)
+                return formula, charge
+                
+            # Otherwise (single digit):
             charge_is_digit = True
             
             if sign_str[0] == '-':
