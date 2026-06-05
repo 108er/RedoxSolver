@@ -110,6 +110,8 @@ def run_cli():
                     print(f"    - {Colors.BOLD}{item['element']}{Colors.END} in {Colors.CYAN}{item['from_species']}{Colors.END} is oxidized from "
                           f"{Colors.YELLOW}{format_ox_state(item['from_ox'])}{Colors.END} to "
                           f"{Colors.YELLOW}{format_ox_state(item['to_ox'])}{Colors.END} in {Colors.CYAN}{item['to_species']}{Colors.END}")
+                if analysis['oxidation_half_reaction']:
+                    print(f"    {Colors.BOLD}Half-Reaction:{Colors.END} {Colors.GREEN}{analysis['oxidation_half_reaction']}{Colors.END}")
             else:
                 print(f"\n  {Colors.BOLD}Oxidation:{Colors.END} None detected (no changes)")
                 
@@ -119,6 +121,8 @@ def run_cli():
                     print(f"    - {Colors.BOLD}{item['element']}{Colors.END} in {Colors.CYAN}{item['from_species']}{Colors.END} is reduced from "
                           f"{Colors.YELLOW}{format_ox_state(item['from_ox'])}{Colors.END} to "
                           f"{Colors.YELLOW}{format_ox_state(item['to_ox'])}{Colors.END} in {Colors.CYAN}{item['to_species']}{Colors.END}")
+                if analysis['reduction_half_reaction']:
+                    print(f"    {Colors.BOLD}Half-Reaction:{Colors.END} {Colors.RED}{analysis['reduction_half_reaction']}{Colors.END}")
             else:
                 print(f"\n  {Colors.BOLD}Reduction:{Colors.END} None detected (no changes)")
                 

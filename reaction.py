@@ -474,6 +474,174 @@ class Reaction:
             
         return format_side(self.balanced_reactants) + arrow + format_side(self.balanced_products)
 
+    def balance_half_reaction(self, active_elements_list, is_reduction):
+        """
+        Balances the half-reaction for the given list of active element details.
+        """
+        if not active_elements_list:
+            return ""
+            
+        # Collect unique reactant and product species containing the active elements
+        reactant_specs = {item['from_species'] for item in active_elements_list}
+        product_specs = {item['to_species'] for item in active_elements_list}
+        
+        # Get their coefficients from the overall balanced reaction
+        reactants = []
+        for coef, spec in self.balanced_reactants:
+            if spec in reactant_specs:
+                reactants.append([coef, spec])
+                
+        products = []
+        for coef, spec in self.balanced_products:
+            if spec in product_specs:
+                products.append([coef, spec])
+                
+        if not reactants or not products:
+            return ""
+            
+        # 1. Balance active elements (non-H/O)
+        active_elements = set()
+        for _, spec in reactants + products:
+            f, _ = parse_species(spec)
+            counts = parse_formula(f)
+            for el in counts:
+                if el not in {"H", "O"}:
+                    active_elements.add(el)
+                    
+        for el in active_elements:
+            left_count = 0
+            for coef, spec in reactants:
+                f, _ = parse_species(spec)
+                counts = parse_formula(f)
+                if el in counts:
+                    left_count += counts[el] * coef
+            right_count = 0
+            for coef, spec in products:
+                f, _ = parse_species(spec)
+                counts = parse_formula(f)
+                if el in counts:
+                    right_count += counts[el] * coef
+                    
+            if left_count != right_count and left_count > 0 and right_count > 0:
+                g = math.gcd(left_count, right_count)
+                left_scale = right_count // g
+                right_scale = left_count // g
+                
+                for item in reactants:
+                    f, _ = parse_species(item[1])
+                    counts = parse_formula(f)
+                    if el in counts:
+                        item[0] *= left_scale
+                for item in products:
+                    f, _ = parse_species(item[1])
+                    counts = parse_formula(f)
+                    if el in counts:
+                        item[0] *= right_scale
+                        
+        # 2. Balance O atoms using H2O
+        def count_atoms(species_list):
+            total = {"H": 0, "O": 0}
+            for coef, spec in species_list:
+                f, _ = parse_species(spec)
+                counts = parse_formula(f)
+                for el in ["H", "O"]:
+                    if el in counts:
+                        total[el] += counts[el] * coef
+            return total
+            
+        r_counts = count_atoms(reactants)
+        p_counts = count_atoms(products)
+        o_diff = r_counts["O"] - p_counts["O"]
+        if o_diff > 0:
+            products.append([o_diff, "H2O"])
+        elif o_diff < 0:
+            reactants.append([-o_diff, "H2O"])
+            
+        # 3. Balance H atoms using H+ / OH-
+        r_counts = count_atoms(reactants)
+        p_counts = count_atoms(products)
+        h_diff = r_counts["H"] - p_counts["H"]
+        
+        if self.medium == "basic":
+            if h_diff > 0:
+                products.append([h_diff, "H2O"])
+                reactants.append([h_diff, "OH-"])
+            elif h_diff < 0:
+                reactants.append([-h_diff, "H2O"])
+                products.append([-h_diff, "OH-"])
+        else:
+            if h_diff > 0:
+                products.append([h_diff, "H+"])
+            elif h_diff < 0:
+                reactants.append([-h_diff, "H+"])
+                
+        # Merge duplicates (especially H2O)
+        def merge_duplicates(species_list):
+            merged = {}
+            for coef, spec in species_list:
+                norm = spec.strip()
+                merged[norm] = merged.get(norm, 0) + coef
+            return [[v, k] for k, v in merged.items() if v > 0]
+            
+        reactants = merge_duplicates(reactants)
+        products = merge_duplicates(products)
+        
+        # Simplify H2O if present on both sides
+        r_h2o = next((item for item in reactants if item[1] == "H2O"), None)
+        p_h2o = next((item for item in products if item[1] == "H2O"), None)
+        if r_h2o and p_h2o:
+            min_h2o = min(r_h2o[0], p_h2o[0])
+            r_h2o[0] -= min_h2o
+            p_h2o[0] -= min_h2o
+            reactants = [item for item in reactants if item[0] > 0]
+            products = [item for item in products if item[0] > 0]
+            
+        # 4. Balance charge using e-
+        r_charge = 0
+        for coef, spec in reactants:
+            _, charge = parse_species(spec)
+            r_charge += charge * coef
+        p_charge = 0
+        for coef, spec in products:
+            _, charge = parse_species(spec)
+            p_charge += charge * coef
+            
+        charge_diff = r_charge - p_charge
+        if charge_diff > 0:
+            reactants.append([charge_diff, "e-"])
+        elif charge_diff < 0:
+            products.append([-charge_diff, "e-"])
+            
+        reactants = merge_duplicates(reactants)
+        products = merge_duplicates(products)
+        
+        # 5. Simplify by dividing by GCD
+        final_gcd = 0
+        for coef, _ in reactants + products:
+            final_gcd = math.gcd(final_gcd, coef)
+        if final_gcd > 1:
+            for item in reactants:
+                item[0] //= final_gcd
+            for item in products:
+                item[0] //= final_gcd
+                
+        def format_side(species_list):
+            terms = []
+            for coef, spec in species_list:
+                coef_str = f"{coef} " if coef > 1 else ""
+                terms.append(f"{coef_str}{spec}")
+            return " + ".join(terms)
+            
+        arrow = " -> "
+        if "⇌" in self.raw_equation:
+            arrow = " ⇌ "
+        elif "=>" in self.raw_equation:
+            arrow = " => "
+        elif "=" in self.raw_equation:
+            arrow = " = "
+            
+        return format_side(reactants) + arrow + format_side(products)
+
     def analyze(self):
         """
         Performs detailed redox analysis on the reaction.
@@ -571,6 +739,9 @@ class Reaction:
         ox_agents = clean_agents(oxidizing_agents)
         red_agents = clean_agents(reducing_agents)
         
+        oxidation_half_reaction = self.balance_half_reaction(oxidized_elements, is_reduction=False)
+        reduction_half_reaction = self.balance_half_reaction(reduced_elements, is_reduction=True)
+        
         return {
             'balanced_equation': self.get_balanced_equation_str(),
             'medium': self.medium,
@@ -579,5 +750,7 @@ class Reaction:
             'oxidized_elements': oxidized_elements,
             'reduced_elements': reduced_elements,
             'oxidizing_agents': ox_agents,
-            'reducing_agents': red_agents
+            'reducing_agents': red_agents,
+            'oxidation_half_reaction': oxidation_half_reaction,
+            'reduction_half_reaction': reduction_half_reaction
         }

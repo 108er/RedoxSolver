@@ -93,6 +93,9 @@ def parse_species(species_str):
     if not species_str:
         raise ValueError("Empty species string")
     
+    if species_str in {"e-", "e", "e^-"}:
+        return "", -1
+    
     # 1. Check for caret or parentheses-enclosed charge at the end, e.g. ^2-, (2-), ^+, (+)
     match = re.search(r'[\^\(]([0-9]*[+-]|[+-][0-9]*)[\)]?$', species_str)
     if match:

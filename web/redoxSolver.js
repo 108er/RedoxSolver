@@ -248,6 +248,10 @@ function parseSpecies(speciesStr) {
     speciesStr = speciesStr.trim();
     if (!speciesStr) throw new Error("Empty species string");
     
+    if (speciesStr === "e-" || speciesStr === "e" || speciesStr === "e^-") {
+        return ["", -1];
+    }
+    
     // 1. Check caret or parentheses charge
     let caretMatch = speciesStr.match(/[\^\(]([0-9]*[+-]|[+-][0-9]*)[\)]?$/);
     if (caretMatch) {
@@ -722,6 +726,183 @@ class Reaction {
         return formatSide(this.balancedReactants) + arrow + formatSide(this.balancedProducts);
     }
     
+    balanceHalfReaction(activeElementsList, isReduction) {
+        if (!activeElementsList || activeElementsList.length === 0) return "";
+        
+        let reactantSpecs = new Set();
+        let productSpecs = new Set();
+        for (let item of activeElementsList) {
+            reactantSpecs.add(item.from_species);
+            productSpecs.add(item.to_species);
+        }
+        
+        let reactants = [];
+        for (let [coef, spec] of this.balancedReactants) {
+            if (reactantSpecs.has(spec)) {
+                reactants.push([coef, spec]);
+            }
+        }
+        
+        let products = [];
+        for (let [coef, spec] of this.balancedProducts) {
+            if (productSpecs.has(spec)) {
+                products.push([coef, spec]);
+            }
+        }
+        
+        if (reactants.length === 0 || products.length === 0) return "";
+        
+        // 1. Balance active elements (non-H/O)
+        reactants = reactants.map(([coef, spec]) => [coef, spec]);
+        products = products.map(([coef, spec]) => [coef, spec]);
+        
+        let activeElements = new Set();
+        for (let [, spec] of [...reactants, ...products]) {
+            let [formula, ] = parseSpecies(spec);
+            let counts = parseFormula(formula);
+            for (let el in counts) {
+                if (el !== "H" && el !== "O") activeElements.add(el);
+            }
+        }
+        
+        for (let el of activeElements) {
+            let leftCount = 0;
+            for (let [coef, spec] of reactants) {
+                let [formula, ] = parseSpecies(spec);
+                let counts = parseFormula(formula);
+                if (counts[el]) leftCount += counts[el] * coef;
+            }
+            let rightCount = 0;
+            for (let [coef, spec] of products) {
+                let [formula, ] = parseSpecies(spec);
+                let counts = parseFormula(formula);
+                if (counts[el]) rightCount += counts[el] * coef;
+            }
+            
+            if (leftCount !== rightCount && leftCount > 0 && rightCount > 0) {
+                let g = gcd(leftCount, rightCount);
+                let leftScale = rightCount / g;
+                let rightScale = leftCount / g;
+                
+                for (let item of reactants) {
+                    let [formula, ] = parseSpecies(item[1]);
+                    let counts = parseFormula(formula);
+                    if (counts[el]) item[0] *= leftScale;
+                }
+                for (let item of products) {
+                    let [formula, ] = parseSpecies(item[1]);
+                    let counts = parseFormula(formula);
+                    if (counts[el]) item[0] *= rightScale;
+                }
+            }
+        }
+        
+        // 2. Balance O atoms using H2O
+        let countAtoms = list => {
+            let total = { H: 0, O: 0 };
+            for (let [coef, spec] of list) {
+                let [formula, ] = parseSpecies(spec);
+                let counts = parseFormula(formula);
+                for (let el in counts) {
+                    if (el === "H" || el === "O") {
+                        total[el] = (total[el] || 0) + counts[el] * coef;
+                    }
+                }
+            }
+            return total;
+        };
+        
+        let rCounts = countAtoms(reactants);
+        let pCounts = countAtoms(products);
+        let oDiff = rCounts.O - pCounts.O;
+        if (oDiff > 0) {
+            products.push([oDiff, "H2O"]);
+        } else if (oDiff < 0) {
+            reactants.push([-oDiff, "H2O"]);
+        }
+        
+        // 3. Balance H atoms using H+ / OH-
+        rCounts = countAtoms(reactants);
+        pCounts = countAtoms(products);
+        let hDiff = rCounts.H - pCounts.H;
+        
+        if (this.medium === "basic") {
+            if (hDiff > 0) {
+                products.push([hDiff, "H2O"]);
+                reactants.push([hDiff, "OH-"]);
+            } else if (hDiff < 0) {
+                reactants.push([-hDiff, "H2O"]);
+                products.push([-hDiff, "OH-"]);
+            }
+        } else {
+            if (hDiff > 0) {
+                products.push([hDiff, "H+"]);
+            } else if (hDiff < 0) {
+                reactants.push([-hDiff, "H+"]);
+            }
+        }
+        
+        // Merge duplicates
+        let mergeDuplicates = list => {
+            let merged = {};
+            for (let [coef, spec] of list) {
+                let norm = spec.trim();
+                merged[norm] = (merged[norm] || 0) + coef;
+            }
+            return Object.keys(merged).map(spec => [merged[spec], spec]).filter(item => item[0] > 0);
+        };
+        
+        reactants = mergeDuplicates(reactants);
+        products = mergeDuplicates(products);
+        
+        // Simplify H2O
+        let rH2O = reactants.find(item => item[1] === "H2O");
+        let pH2O = products.find(item => item[1] === "H2O");
+        if (rH2O && pH2O) {
+            let minH2O = Math.min(rH2O[0], pH2O[0]);
+            rH2O[0] -= minH2O;
+            pH2O[0] -= minH2O;
+            reactants = reactants.filter(item => item[0] > 0);
+            products = products.filter(item => item[0] > 0);
+        }
+        
+        // 4. Balance charge using e-
+        let rCharge = 0;
+        for (let [coef, spec] of reactants) {
+            let [, charge] = parseSpecies(spec);
+            rCharge += charge * coef;
+        }
+        let pCharge = 0;
+        for (let [coef, spec] of products) {
+            let [, charge] = parseSpecies(spec);
+            pCharge += charge * coef;
+        }
+        
+        let chargeDiff = rCharge - pCharge;
+        if (chargeDiff > 0) {
+            reactants.push([chargeDiff, "e-"]);
+        } else if (chargeDiff < 0) {
+            products.push([-chargeDiff, "e-"]);
+        }
+        
+        reactants = mergeDuplicates(reactants);
+        products = mergeDuplicates(products);
+        
+        // 5. Simplify by dividing by GCD
+        let finalGcd = 0;
+        for (let [coef, ] of [...reactants, ...products]) {
+            finalGcd = gcd(finalGcd, coef);
+        }
+        if (finalGcd > 1) {
+            reactants = reactants.map(([coef, spec]) => [coef / finalGcd, spec]);
+            products = products.map(([coef, spec]) => [coef / finalGcd, spec]);
+        }
+        
+        let formatSide = list => list.map(([coef, spec]) => `${coef > 1 ? coef + " " : ""}${spec}`).join(" + ");
+        let arrow = this.rawEquation.includes("⇌") ? " ⇌ " : (this.rawEquation.includes("=>") ? " => " : " -> ");
+        return formatSide(reactants) + arrow + formatSide(products);
+    }
+    
     analyze() {
         if (!this.isBalanced) this.balance();
         
@@ -794,6 +975,9 @@ class Reaction {
             return arr.length > 0 ? arr : Array.from(set);
         };
         
+        let oxidationHalfReaction = this.balanceHalfReaction(oxidizedElements, false);
+        let reductionHalfReaction = this.balanceHalfReaction(reducedElements, true);
+        
         return {
             balancedEquation: this.getBalancedEquationStr(),
             medium: this.medium,
@@ -802,7 +986,9 @@ class Reaction {
             oxidizedElements: oxidizedElements,
             reducedElements: reducedElements,
             oxidizingAgents: cleanAgents(oxidizingAgents),
-            reducingAgents: cleanAgents(reducingAgents)
+            reducingAgents: cleanAgents(reducingAgents),
+            oxidationHalfReaction: oxidationHalfReaction,
+            reductionHalfReaction: reductionHalfReaction
         };
     }
 }
@@ -811,6 +997,9 @@ class Reaction {
 function formatChemicalFormulaHTML(speciesStr) {
     // Splits the species into formula and charge
     try {
+        if (speciesStr === "e-" || speciesStr === "e" || speciesStr === "e^-") {
+            return "e<sup>-</sup>";
+        }
         let [formula, charge] = parseSpecies(speciesStr);
         
         // Format formula subscripts
@@ -934,6 +1123,14 @@ function init() {
                 oxidationDetails.innerHTML = `<div class="detail-item muted">No oxidation changes detected.</div>`;
             }
             
+            const oxHalfWrapper = document.getElementById("oxidation-half-wrapper");
+            if (analysis.oxidationHalfReaction) {
+                document.getElementById("oxidation-half-reaction").innerHTML = formatEquationHTML(analysis.oxidationHalfReaction);
+                oxHalfWrapper.classList.remove("hidden");
+            } else {
+                oxHalfWrapper.classList.add("hidden");
+            }
+            
             // Reduction
             if (analysis.reducedElements.length > 0) {
                 reductionDetails.innerHTML = analysis.reducedElements.map(item => {
@@ -945,6 +1142,14 @@ function init() {
                 }).join("");
             } else {
                 reductionDetails.innerHTML = `<div class="detail-item muted">No reduction changes detected.</div>`;
+            }
+            
+            const redHalfWrapper = document.getElementById("reduction-half-wrapper");
+            if (analysis.reductionHalfReaction) {
+                document.getElementById("reduction-half-reaction").innerHTML = formatEquationHTML(analysis.reductionHalfReaction);
+                redHalfWrapper.classList.remove("hidden");
+            } else {
+                redHalfWrapper.classList.add("hidden");
             }
             
             // Populate Agents

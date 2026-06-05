@@ -118,6 +118,17 @@ class TestRedoxAnalysis(unittest.TestCase):
         
         reduced = analysis["reduced_elements"]
         self.assertTrue(any(item["element"] == "Mn" and item["from_ox"] == 7 and item["to_ox"] == 2 for item in reduced))
+        
+    def test_half_reactions(self):
+        eq = "MnO4- + Fe2+ -> Mn2+ + Fe3+"
+        analysis = self.solver.analyze_reaction(eq, "acidic")
+        self.assertEqual(analysis["oxidation_half_reaction"], "Fe2+ -> Fe3+ + e-")
+        self.assertEqual(analysis["reduction_half_reaction"], "MnO4- + 8 H+ + 5 e- -> Mn2+ + 4 H2O")
+        
+        # Test basic medium
+        analysis_basic = self.solver.analyze_reaction(eq, "basic")
+        self.assertEqual(analysis_basic["oxidation_half_reaction"], "Fe2+ -> Fe3+ + e-")
+        self.assertEqual(analysis_basic["reduction_half_reaction"], "MnO4- + 4 H2O + 5 e- -> Mn2+ + 8 OH-")
 
 
 if __name__ == "__main__":

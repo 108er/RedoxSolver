@@ -111,6 +111,7 @@ body {
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 12px;
 }
@@ -619,4 +620,46 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Half Reaction Display in Redox Analysis */
+.half-reaction-wrapper {
+    margin-top: 16px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.half-reaction-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.half-reaction-eq {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    overflow-x: auto;
+    white-space: nowrap;
+    line-height: 1.4;
+    padding-bottom: 2px;
+}
+
+.half-reaction-eq .coef {
+    font-weight: 700;
+}
+
+.half-reaction-eq sub {
+    font-size: 0.75rem;
+    bottom: -0.1em;
+}
+
+.half-reaction-eq sup {
+    font-size: 0.75rem;
+    top: -0.3em;
 }
