@@ -34,6 +34,33 @@
                 </div>
             </section>
 
+            <!-- Input Guidelines Accordion -->
+            <details class="guidelines-details">
+                <summary class="guidelines-summary">Input Guidelines & Examples</summary>
+                <div class="guidelines-content">
+                    <div class="guideline-col dos">
+                        <h4>Do's</h4>
+                        <ul class="guideline-list">
+                            <li>Write elements with standard capitalization: e.g., <code>NaCl</code>, <code>KMnO4</code>, <code>H2O</code>.</li>
+                            <li>Write ionic charges clearly: e.g., <code>MnO4-</code>, <code>Fe2+</code>, <code>Fe++</code>, or <code>Fe^2+</code>.</li>
+                            <li>Use correct arrow symbols: <code>-&gt;</code>, <code>--&gt;</code>, <code>=&gt;</code>, or <code>=</code>.</li>
+                            <li>Separate reactants and products using spaces and plus signs: e.g., <code>A + B -&gt; C + D</code>.</li>
+                            <li>Choose the correct medium (Acidic/Basic) if your equation needs auto-balancing of <code>H+</code>, <code>OH-</code>, or <code>H2O</code>.</li>
+                        </ul>
+                    </div>
+                    <div class="guideline-col donts">
+                        <h4>Don'ts</h4>
+                        <ul class="guideline-list">
+                            <li>Don't use lowercase for element symbols: e.g., do not write <code>na</code> or <code>kmno4</code>.</li>
+                            <li>Don't confuse oxygen <code>O</code> with zero <code>0</code>: e.g., use <code>H2O</code>, not <code>H20</code>.</li>
+                            <li>Don't omit spaces around the reaction arrow or reactant/product plus signs.</li>
+                            <li>Don't put spaces inside a single formula: e.g., write <code>H2O</code>, not <code>H 2 O</code>.</li>
+                            <li>Don't include phase symbols like <code>(aq)</code>, <code>(s)</code>, or <code>(g)</code> as they confuse the parser.</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
             <!-- Main Input Form -->
             <form id="solver-form" class="solver-form" novalidate>
                 <div class="input-group">
@@ -60,6 +87,15 @@
                             <input type="radio" name="medium" id="med-neutral" value="neutral">
                             <label for="med-neutral">Neutral</label>
                         </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <span class="field-label">Options</span>
+                        <label class="toggle-control">
+                            <input type="checkbox" id="equalize-electrons" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Equalize electrons</span>
+                        </label>
                     </div>
 
                     <button type="submit" id="submit-btn" class="submit-btn">

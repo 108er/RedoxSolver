@@ -224,6 +224,32 @@ def simplify_coefficients(coeffs):
     return coeffs
 
 
+def to_roman(num):
+    try:
+        val_float = float(num)
+        if not val_float.is_integer():
+            if val_float > 0:
+                return f"+{val_float}"
+            return str(val_float)
+        val = int(val_float)
+    except (ValueError, TypeError):
+        return str(num)
+    if val == 0:
+        return "0"
+    abs_val = abs(val)
+    roman_map = [
+        (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
+        (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
+        (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')
+    ]
+    roman = ""
+    for limit, char in roman_map:
+        while abs_val >= limit:
+            roman += char
+            abs_val -= limit
+    return f"-{roman}" if val < 0 else roman
+
+
 class Reaction:
     def __init__(self, equation_str, medium=None):
         self.raw_equation = equation_str
@@ -474,12 +500,13 @@ class Reaction:
             
         return format_side(self.balanced_reactants) + arrow + format_side(self.balanced_products)
 
-    def balance_half_reaction(self, active_elements_list, is_reduction):
+    def balance_half_reaction(self, active_elements_list, is_reduction, factor=1):
         """
         Balances the half-reaction for the given list of active element details.
+        Returns a tuple: (half_reaction_str, electron_count)
         """
         if not active_elements_list:
-            return ""
+            return "", 0
             
         # Collect unique reactant and product species containing the active elements
         reactant_specs = {item['from_species'] for item in active_elements_list}
@@ -497,7 +524,93 @@ class Reaction:
                 products.append([coef, spec])
                 
         if not reactants or not products:
-            return ""
+            return "", 0
+
+        # Check if we should use element-level half reaction (due to spectator elements)
+        has_spectators = False
+        active_elements = {item['element'] for item in active_elements_list}
+        for coef, spec in reactants + products:
+            f, _ = parse_species(spec)
+            counts = parse_formula(f)
+            for el in counts:
+                if el not in active_elements and el not in {"H", "O"}:
+                    has_spectators = True
+                    break
+            if has_spectators:
+                break
+
+        if has_spectators:
+            reactants_terms = []
+            products_terms = []
+            total_e = 0
+            
+            def get_product_coef(spec_name):
+                for coef, spec in self.balanced_products:
+                    if spec == spec_name:
+                        return coef
+                return 1
+                
+            # Determine GCD to get the simplest form first
+            g = 1
+            temp_total_e = 0
+            all_coefs = []
+            for item in active_elements_list:
+                el = item['element']
+                to_spec = item['to_species']
+                f_to, _ = parse_species(to_spec)
+                to_counts = parse_formula(f_to)
+                el_count = to_counts.get(el, 1)
+                N = get_product_coef(to_spec) * el_count
+                diff = abs(item['to_ox'] - item['from_ox'])
+                temp_total_e += int(round(N * diff))
+                all_coefs.append(N)
+            all_coefs.append(temp_total_e)
+            
+            g_val = 0
+            for c in all_coefs:
+                g_val = math.gcd(g_val, c)
+            if g_val > 1:
+                g = g_val
+
+            for item in active_elements_list:
+                el = item['element']
+                from_ox = item['from_ox']
+                to_ox = item['to_ox']
+                to_spec = item['to_species']
+                
+                f_to, _ = parse_species(to_spec)
+                to_counts = parse_formula(f_to)
+                el_count = to_counts.get(el, 1)
+                
+                N = ((get_product_coef(to_spec) * el_count) // g) * factor
+                diff = abs(to_ox - from_ox)
+                e_change = N * diff
+                
+                r_term = f"{N} {el}^({to_roman(from_ox)})" if N > 1 else f"{el}^({to_roman(from_ox)})"
+                p_term = f"{N} {el}^({to_roman(to_ox)})" if N > 1 else f"{el}^({to_roman(to_ox)})"
+                
+                reactants_terms.append(r_term)
+                products_terms.append(p_term)
+                total_e += int(round(e_change))
+                
+            left_side = " + ".join(reactants_terms)
+            right_side = " + ".join(products_terms)
+            
+            e_str = f"{total_e} " if total_e > 1 else ""
+            if is_reduction:
+                left_side += f" + {e_str}e-"
+            else:
+                left_side += f" - {e_str}e-"
+                
+            arrow = " -> "
+            if "⇌" in self.raw_equation:
+                arrow = " ⇌ "
+            elif "=>" in self.raw_equation:
+                arrow = " => "
+            elif "=" in self.raw_equation:
+                arrow = " = "
+                
+            return f"{left_side}{arrow}{right_side}", total_e
             
         # 1. Balance active elements (non-H/O)
         active_elements = set()
@@ -615,7 +728,7 @@ class Reaction:
         reactants = merge_duplicates(reactants)
         products = merge_duplicates(products)
         
-        # 5. Simplify by dividing by GCD
+        # 5. Simplify by dividing by GCD (always simplify to simplest first)
         final_gcd = 0
         for coef, _ in reactants + products:
             final_gcd = math.gcd(final_gcd, coef)
@@ -624,6 +737,20 @@ class Reaction:
                 item[0] //= final_gcd
             for item in products:
                 item[0] //= final_gcd
+                
+        # 6. Apply factor
+        if factor > 1:
+            for item in reactants:
+                item[0] *= factor
+            for item in products:
+                item[0] *= factor
+
+        # Find electron count
+        electrons = 0
+        for coef, spec in reactants + products:
+            if spec == "e-":
+                electrons = coef
+                break
                 
         def format_side(species_list):
             terms = []
@@ -640,7 +767,7 @@ class Reaction:
         elif "=" in self.raw_equation:
             arrow = " = "
             
-        return format_side(reactants) + arrow + format_side(products)
+        return format_side(reactants) + arrow + format_side(products), electrons
 
     def analyze(self):
         """
@@ -739,8 +866,21 @@ class Reaction:
         ox_agents = clean_agents(oxidizing_agents)
         red_agents = clean_agents(reducing_agents)
         
-        oxidation_half_reaction = self.balance_half_reaction(oxidized_elements, is_reduction=False)
-        reduction_half_reaction = self.balance_half_reaction(reduced_elements, is_reduction=True)
+        # Get simplest form and their electron counts
+        oxidation_half_reaction, ox_electrons = self.balance_half_reaction(oxidized_elements, is_reduction=False, factor=1)
+        reduction_half_reaction, red_electrons = self.balance_half_reaction(reduced_elements, is_reduction=True, factor=1)
+        
+        # Calculate LCM of electrons to scale them to the smallest common multiple
+        if ox_electrons > 0 and red_electrons > 0:
+            lcm_val = lcm(ox_electrons, red_electrons)
+            ox_factor = lcm_val // ox_electrons
+            red_factor = lcm_val // red_electrons
+        else:
+            ox_factor = 1
+            red_factor = 1
+            
+        oxidation_half_reaction_scaled, _ = self.balance_half_reaction(oxidized_elements, is_reduction=False, factor=ox_factor)
+        reduction_half_reaction_scaled, _ = self.balance_half_reaction(reduced_elements, is_reduction=True, factor=red_factor)
         
         return {
             'balanced_equation': self.get_balanced_equation_str(),
@@ -752,5 +892,7 @@ class Reaction:
             'oxidizing_agents': ox_agents,
             'reducing_agents': red_agents,
             'oxidation_half_reaction': oxidation_half_reaction,
-            'reduction_half_reaction': reduction_half_reaction
+            'reduction_half_reaction': reduction_half_reaction,
+            'oxidation_half_reaction_scaled': oxidation_half_reaction_scaled,
+            'reduction_half_reaction_scaled': reduction_half_reaction_scaled
         }

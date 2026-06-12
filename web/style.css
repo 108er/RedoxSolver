@@ -663,3 +663,198 @@ body {
     font-size: 0.75rem;
     top: -0.3em;
 }
+
+/* Guidelines Accordion Styling */
+.guidelines-details {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 6px 16px;
+    transition: var(--transition-smooth);
+    margin-bottom: 8px;
+}
+
+.guidelines-details[open] {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+}
+
+.guidelines-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 10px 0;
+    list-style: none; /* Hide default arrow */
+    user-select: none;
+    transition: var(--transition-smooth);
+}
+
+.guidelines-summary::-webkit-details-marker {
+    display: none; /* Hide default arrow in Safari */
+}
+
+.guidelines-summary:hover {
+    color: var(--text-primary);
+}
+
+.guidelines-summary::after {
+    content: "+";
+    font-size: 1.25rem;
+    font-weight: 400;
+    transition: var(--transition-smooth);
+}
+
+.guidelines-details[open] .guidelines-summary::after {
+    content: "−";
+    transform: rotate(180deg);
+}
+
+.guidelines-content {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 640px) {
+    .guidelines-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.guideline-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.guideline-col h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.guideline-col.dos h4 {
+    color: var(--oxidized-color);
+}
+
+.guideline-col.donts h4 {
+    color: var(--reduced-color);
+}
+
+.guideline-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.guideline-list li {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    position: relative;
+    padding-left: 20px;
+}
+
+.guideline-list li::before {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    font-weight: 700;
+}
+
+.guideline-col.dos li::before {
+    content: "✓";
+    color: var(--oxidized-color);
+}
+
+.guideline-col.donts li::before {
+    content: "✗";
+    color: var(--reduced-color);
+}
+
+.guideline-list code {
+    background: rgba(0, 0, 0, 0.25);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+/* Premium Switch Toggle */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.toggle-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px 0;
+}
+
+.toggle-control input {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 44px;
+    height: 22px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    transition: var(--transition-smooth);
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    transition: var(--transition-smooth);
+}
+
+.toggle-control input:checked + .toggle-slider {
+    background-color: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+}
+
+.toggle-control input:checked + .toggle-slider::before {
+    transform: translateX(22px);
+    background-color: var(--primary);
+}
+
+.toggle-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: var(--transition-smooth);
+}
+
+.toggle-control:hover .toggle-label {
+    color: var(--text-primary);
+}
+
+

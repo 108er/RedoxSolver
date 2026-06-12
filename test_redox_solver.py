@@ -124,12 +124,25 @@ class TestRedoxAnalysis(unittest.TestCase):
         analysis = self.solver.analyze_reaction(eq, "acidic")
         self.assertEqual(analysis["oxidation_half_reaction"], "Fe2+ -> Fe3+ + e-")
         self.assertEqual(analysis["reduction_half_reaction"], "MnO4- + 8 H+ + 5 e- -> Mn2+ + 4 H2O")
+        self.assertEqual(analysis["oxidation_half_reaction_scaled"], "5 Fe2+ -> 5 Fe3+ + 5 e-")
+        self.assertEqual(analysis["reduction_half_reaction_scaled"], "MnO4- + 8 H+ + 5 e- -> Mn2+ + 4 H2O")
         
         # Test basic medium
         analysis_basic = self.solver.analyze_reaction(eq, "basic")
         self.assertEqual(analysis_basic["oxidation_half_reaction"], "Fe2+ -> Fe3+ + e-")
         self.assertEqual(analysis_basic["reduction_half_reaction"], "MnO4- + 4 H2O + 5 e- -> Mn2+ + 8 OH-")
+        self.assertEqual(analysis_basic["oxidation_half_reaction_scaled"], "5 Fe2+ -> 5 Fe3+ + 5 e-")
+        self.assertEqual(analysis_basic["reduction_half_reaction_scaled"], "MnO4- + 4 H2O + 5 e- -> Mn2+ + 8 OH-")
+
+    def test_molecular_half_reactions(self):
+        eq = "KMnO4 + FeSO4 + H2SO4 -> MnSO4 + Fe2(SO4)3 + K2SO4 + H2O"
+        analysis = self.solver.analyze_reaction(eq, "neutral")
+        self.assertEqual(analysis["oxidation_half_reaction"], "Fe^(II) - e- -> Fe^(III)")
+        self.assertEqual(analysis["reduction_half_reaction"], "Mn^(VII) + 5 e- -> Mn^(II)")
+        self.assertEqual(analysis["oxidation_half_reaction_scaled"], "5 Fe^(II) - 5 e- -> 5 Fe^(III)")
+        self.assertEqual(analysis["reduction_half_reaction_scaled"], "Mn^(VII) + 5 e- -> Mn^(II)")
 
 
 if __name__ == "__main__":
     unittest.main()
+
