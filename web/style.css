@@ -857,4 +857,44 @@ body {
     color: var(--text-primary);
 }
 
+/* Back Button Styling */
+.back-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    margin-bottom: -10px;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.back-icon {
+    width: 16px;
+    height: 16px;
+    transition: var(--transition-smooth);
+}
+
+.back-btn:hover .back-icon {
+    transform: translateX(-2px);
+}
+
+
 

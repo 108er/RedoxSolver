@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,27 +11,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="background-glows">
         <div class="glow glow-1"></div>
         <div class="glow glow-2"></div>
     </div>
-    
+
     <div class="app-container">
+        <a href="../index.html" class="back-btn">
+            <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Home</span>
+        </a>
+
         <header class="app-header">
-            <div class="logo-badge">⚡ REDOX</div>
             <h1>Redox Solver & Analyzer</h1>
-            <p class="subtitle">Automatically balance complex chemical equations, calculate oxidation states, and identify active agents instantly.</p>
+            <p class="subtitle">Automatically balance complex chemical equations, calculate oxidation states, and
+                identify active agents instantly.</p>
         </header>
 
         <main class="main-card">
             <section class="presets-section">
                 <span class="section-label">Try an example:</span>
                 <div class="presets-grid">
-                    <button type="button" class="preset-btn" data-eq="MnO4- + Fe2+ -> Mn2+ + Fe3+" data-med="acidic">MnO₄⁻ + Fe²⁺ (Acidic)</button>
-                    <button type="button" class="preset-btn" data-eq="Cr2O72- + I- -> Cr3+ + I2" data-med="acidic">Cr₂O₇²⁻ + I⁻ (Acidic)</button>
-                    <button type="button" class="preset-btn" data-eq="KMnO4 + FeSO4 + H2SO4 -> MnSO4 + Fe2(SO4)3 + K2SO4 + H2O" data-med="neutral">KMnO₄ + FeSO₄ + H₂SO₄</button>
-                    <button type="button" class="preset-btn" data-eq="MnO4- + C2O42- -> Mn2+ + CO2" data-med="basic">MnO₄⁻ + C₂O₄²⁻ (Basic)</button>
+                    <button type="button" class="preset-btn" data-eq="MnO4- + Fe2+ -> Mn2+ + Fe3+"
+                        data-med="acidic">MnO₄⁻ + Fe²⁺ (Acidic)</button>
+                    <button type="button" class="preset-btn" data-eq="Cr2O72- + I- -> Cr3+ + I2"
+                        data-med="acidic">Cr₂O₇²⁻ + I⁻ (Acidic)</button>
+                    <button type="button" class="preset-btn"
+                        data-eq="KMnO4 + FeSO4 + H2SO4 -> MnSO4 + Fe2(SO4)3 + K2SO4 + H2O" data-med="neutral">KMnO₄ +
+                        FeSO₄ + H₂SO₄</button>
+                    <button type="button" class="preset-btn" data-eq="MnO4- + C2O42- -> Mn2+ + CO2"
+                        data-med="basic">MnO₄⁻ + C₂O₄²⁻ (Basic)</button>
                 </div>
             </section>
 
@@ -41,21 +55,30 @@
                     <div class="guideline-col dos">
                         <h4>Do's</h4>
                         <ul class="guideline-list">
-                            <li>Write elements with standard capitalization: e.g., <code>NaCl</code>, <code>KMnO4</code>, <code>H2O</code>.</li>
-                            <li>Write ionic charges clearly: e.g., <code>MnO4-</code>, <code>Fe2+</code>, <code>Fe++</code>, or <code>Fe^2+</code>.</li>
-                            <li>Use correct arrow symbols: <code>-&gt;</code>, <code>--&gt;</code>, <code>=&gt;</code>, or <code>=</code>.</li>
-                            <li>Separate reactants and products using spaces and plus signs: e.g., <code>A + B -&gt; C + D</code>.</li>
-                            <li>Choose the correct medium (Acidic/Basic) if your equation needs auto-balancing of <code>H+</code>, <code>OH-</code>, or <code>H2O</code>.</li>
+                            <li>Write elements with standard capitalization: e.g., <code>NaCl</code>,
+                                <code>KMnO4</code>, <code>H2O</code>.</li>
+                            <li>Write ionic charges clearly: e.g., <code>MnO4-</code>, <code>Fe2+</code>,
+                                <code>Fe++</code>, or <code>Fe^2+</code>.</li>
+                            <li>Use correct arrow symbols: <code>-&gt;</code>, <code>--&gt;</code>, <code>=&gt;</code>,
+                                or <code>=</code>.</li>
+                            <li>Separate reactants and products using spaces and plus signs: e.g.,
+                                <code>A + B -&gt; C + D</code>.</li>
+                            <li>Choose the correct medium (Acidic/Basic) if your equation needs auto-balancing of
+                                <code>H+</code>, <code>OH-</code>, or <code>H2O</code>.</li>
                         </ul>
                     </div>
                     <div class="guideline-col donts">
                         <h4>Don'ts</h4>
                         <ul class="guideline-list">
-                            <li>Don't use lowercase for element symbols: e.g., do not write <code>na</code> or <code>kmno4</code>.</li>
-                            <li>Don't confuse oxygen <code>O</code> with zero <code>0</code>: e.g., use <code>H2O</code>, not <code>H20</code>.</li>
+                            <li>Don't use lowercase for element symbols: e.g., do not write <code>na</code> or
+                                <code>kmno4</code>.</li>
+                            <li>Don't confuse oxygen <code>O</code> with zero <code>0</code>: e.g., use
+                                <code>H2O</code>, not <code>H20</code>.</li>
                             <li>Don't omit spaces around the reaction arrow or reactant/product plus signs.</li>
-                            <li>Don't put spaces inside a single formula: e.g., write <code>H2O</code>, not <code>H 2 O</code>.</li>
-                            <li>Don't include phase symbols like <code>(aq)</code>, <code>(s)</code>, or <code>(g)</code> as they confuse the parser.</li>
+                            <li>Don't put spaces inside a single formula: e.g., write <code>H2O</code>, not
+                                <code>H 2 O</code>.</li>
+                            <li>Don't include phase symbols like <code>(aq)</code>, <code>(s)</code>, or
+                                <code>(g)</code> as they confuse the parser.</li>
                         </ul>
                     </div>
                 </div>
@@ -66,7 +89,8 @@
                 <div class="input-group">
                     <label for="equation-input" class="field-label">Chemical Equation</label>
                     <div class="input-wrapper">
-                        <input type="text" id="equation-input" placeholder="e.g., MnO4- + Fe2+ -> Mn2+ + Fe3+" required autocomplete="off">
+                        <input type="text" id="equation-input" placeholder="e.g., MnO4- + Fe2+ -> Mn2+ + Fe3+" required
+                            autocomplete="off">
                         <button type="button" id="clear-btn" class="clear-btn" aria-label="Clear input">&times;</button>
                     </div>
                 </div>
@@ -77,13 +101,13 @@
                         <div class="segmented-control">
                             <input type="radio" name="medium" id="med-auto" value="auto" checked>
                             <label for="med-auto">Auto-detect</label>
-                            
+
                             <input type="radio" name="medium" id="med-acidic" value="acidic">
                             <label for="med-acidic">Acidic</label>
-                            
+
                             <input type="radio" name="medium" id="med-basic" value="basic">
                             <label for="med-basic">Basic</label>
-                            
+
                             <input type="radio" name="medium" id="med-neutral" value="neutral">
                             <label for="med-neutral">Neutral</label>
                         </div>
@@ -100,14 +124,20 @@
 
                     <button type="submit" id="submit-btn" class="submit-btn">
                         <span>Balance & Analyze</span>
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
                     </button>
                 </div>
             </form>
 
             <!-- Error Banner -->
             <div id="error-banner" class="error-banner hidden">
-                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
                 <span id="error-message"></span>
             </div>
 
@@ -126,7 +156,7 @@
                     <!-- Redox Analysis (Oxidation & Reduction) -->
                     <section class="result-card analysis-card">
                         <h2>Redox Analysis</h2>
-                        
+
                         <div class="analysis-block oxidation-block">
                             <div class="block-title">
                                 <span class="badge badge-oxidized">Oxidation</span>
@@ -183,7 +213,7 @@
                 </div>
             </div>
         </main>
-        
+
         <footer class="app-footer">
             <p>&copy; 2026 Redox Solver. Designed for high performance chemical modeling.</p>
         </footer>
@@ -192,4 +222,5 @@
     <!-- Solver JavaScript Engine -->
     <script src="redoxSolver.js"></script>
 </body>
+
 </html>
